@@ -7,6 +7,11 @@
 	<button type="submit">log in</button>
 </form>
 
+<br>
+{{#if messages.error}}
+	<div>error: {{messages.error}}</div>
+{{/if}}
+
 <br><br>
 
 <a href="/">home</a>

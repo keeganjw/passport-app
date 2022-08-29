@@ -3,10 +3,14 @@ const express = require('express');
 const hbs = require('express-handlebars');
 const bcrypt = require('bcrypt');
 const passport = require('passport');
-const session = require('express-session');
 const flash = require('express-flash');
+const session = require('express-session');
 const initializePassport = require('./passport-config');
 let users = [];
+
+if(process.env.NODE_ENV !== 'production') {
+	require('dotenv').config();
+}
 
 initializePassport(
 	passport,
@@ -30,34 +34,38 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.use(flash());
 app.use(session({
-	secret: process.env.SESSION_SECRET
+	secret: process.env.SESSION_SECRET,
+	resave: false,
+	saveUninitialized: false
 }));
-
-// set routes imported from routes.js
-app.use('/', routes);
+app.use(passport.initialize());
+app.use(passport.session());
 
 // index
-router.get('/', (req, res) => {
+app.get('/', (req, res) => {
 	res.render('index', { title: 'home' });
 });
 
 // login
-router.get('/login', (req, res) => {
+app.get('/login', (req, res) => {
 	res.render('login', { title: 'login' });
 });
 
-router.post('/login', (req, res) => {
-	res.redirect('/protected');
-});
+app.post('/login', passport.authenticate('local', {
+	successRedirect: '/protected',
+	failureRedirect: '/login',
+	failureFlash: true
+}));
 
 // register
-router.get('/register', (req, res) => {
+app.get('/register', (req, res) => {
 	res.render('register', { title: 'register' });
 });
 
-router.post('/register', async (req, res) => {
+app.post('/register', async (req, res) => {
 	try {
-		const hashedPassword = bcrypt.hash(req.body.password, 10);
+		const hashedPassword = await bcrypt.hash(req.body.password, 10);
+
 		users.push({
 			id: Date.now.toString(),
 			name: req.body.name,
@@ -73,7 +81,7 @@ router.post('/register', async (req, res) => {
 });
 
 // protected
-router.get('/protected', (req, res) => {
+app.get('/protected', (req, res) => {
 	res.render('protected', { title: 'protected', name: 'keegan' });
 });
 
