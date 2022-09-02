@@ -1,25 +1,20 @@
 // import required modules and files
 const express = require('express');
 const hbs = require('express-handlebars');
-const bcrypt = require('bcrypt');
 const passport = require('passport');
 const flash = require('express-flash');
 const session = require('express-session');
-const initializePassport = require('./passport-config');
-let users = [];
+const LocalStrategy = require('passport-local');
+const auth = require('./auth');
 
 if(process.env.NODE_ENV !== 'production') {
 	require('dotenv').config();
 }
 
-initializePassport(
-	passport,
-	(email) => users.find(user => user.email === email)
-);
-
 // set app constants
 const app = express();
 const port = 4000;
+
 
 // set view engine to handlebars (hbs)
 app.engine('hbs', hbs.engine({
@@ -41,36 +36,47 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+passport.use(new LocalStrategy({
+	usernameField: 'email',
+	passwordField: 'password',
+	session: true
+}, auth.authenticateUser));
+
+passport.serializeUser((user, done) => {
+	done(null, user);
+});
+
+passport.deserializeUser((user, done) => {
+	done(null, user);
+});
+
 // index
 app.get('/', (req, res) => {
 	res.render('index', { title: 'home' });
 });
 
 // login
-app.get('/login', (req, res) => {
+app.get('/login', auth.allowIfNotAuthenticated, (req, res) => {
 	res.render('login', { title: 'login' });
 });
 
-app.post('/login', passport.authenticate('local', {
+app.post('/login', auth.allowIfNotAuthenticated, passport.authenticate('local', {
 	successRedirect: '/protected',
 	failureRedirect: '/login',
 	failureFlash: true
 }));
 
 // register
-app.get('/register', (req, res) => {
+app.get('/register', auth.allowIfNotAuthenticated, (req, res) => {
 	res.render('register', { title: 'register' });
 });
 
-app.post('/register', async (req, res) => {
+app.post('/register', auth.allowIfNotAuthenticated, async (req, res) => {
 	try {
-		const hashedPassword = await bcrypt.hash(req.body.password, 10);
-
-		users.push({
-			id: Date.now.toString(),
+		await auth.addUser({
 			name: req.body.name,
 			email: req.body.email,
-			password: hashedPassword
+			password: req.body.password
 		});
 
 		res.redirect('/login');
@@ -81,8 +87,18 @@ app.post('/register', async (req, res) => {
 });
 
 // protected
-app.get('/protected', (req, res) => {
-	res.render('protected', { title: 'protected', name: 'keegan' });
+app.get('/protected', auth.allowIfAuthenticated, (req, res) => {
+	res.render('protected', { title: 'protected', name: req.user.name });
+});
+
+app.get('/logout', auth.allowIfAuthenticated, (req, res, next) => {
+	req.logout((error) => {
+		if(error) {
+			return next(error);
+		}
+
+		res.redirect('/');
+	});	
 });
 
 // listen for http requests
