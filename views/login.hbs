@@ -1,17 +1,26 @@
 <h1>login</h1>
 
 <form action="/login" method="post">
-	email: <input type="email" name="email" id="email" required><br>
-	password: <input type="password" name="password" id="password" required><br><br>
+	<div>
+		<label for="email">email:</label>
+		<input type="email" name="email" id="email" required>
+	</div>
+	
+	<div>
+		<label for="password">password:</label>
+		<input type="password" name="password" id="password" required>
+	</div>
 
-	<button type="submit">log in</button>
+	<div>
+		<button type="submit">log in</button>
+	</div>
 </form>
 
-<br>
+
 {{#if messages.error}}
-	<div>{{messages.error}}</div>
+	<div class="error">{{messages.error}}</div>
 {{/if}}
 
-<br><br>
-
-<a href="/">home</a>
+<div class="bottom-link">
+	<a href="/">home</a>
+</div>

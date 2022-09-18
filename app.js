@@ -68,21 +68,27 @@ app.post('/login', auth.allowIfNotAuthenticated, passport.authenticate('local', 
 
 // register
 app.get('/register', auth.allowIfNotAuthenticated, (req, res) => {
-	res.render('register', { title: 'register' });
+	res.render('register', { title: 'register', name: '', email: '' });
 });
 
 app.post('/register', auth.allowIfNotAuthenticated, async (req, res) => {
-	try {
-		await auth.addUser({
-			name: req.body.name,
-			email: req.body.email,
-			password: req.body.password
-		});
-
-		res.redirect('/login');
+	if(req.body.password !== req.body.confirm) {
+		req.flash('error', 'passwords do not match');
+		res.render('register', { title: 'register', name: req.body.name, email: req.body.email });
 	}
-	catch {
-		res.redirect('/register');
+	else {
+		try {
+			await auth.addUser({
+				name: req.body.name,
+				email: req.body.email,
+				password: req.body.password
+			});
+
+			res.redirect('/login');
+		}
+		catch {
+			res.render('register', { title: 'register', name: req.body.name, email: req.body.email });
+		}
 	}
 });
 

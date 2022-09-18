@@ -1,7 +1,5 @@
 # A Test App Using Passport-Local with Express
 
-## About This Project
-
 I created this project to learn how to use passport, specifically the local strategy, to add basic authentication to an Express application. I purposefully made the project as minimal as possible to focus on learning how passport works. The bcrypt libary is used for encryption.
 
 ## Details

@@ -8,3 +8,38 @@ body {
 a {
 	color: lightcoral;
 }
+
+label {
+	display: block;
+}
+
+form div {
+	margin: .5rem 0rem;
+}
+
+form div:last-of-type {
+	margin-top: 1.5rem;
+}
+
+input[type=text],
+input[type=email],
+input[type=password] {
+	box-sizing: border-box;
+	width: 15rem;
+}
+
+/* Classes */
+
+.bottom-link {
+	margin-top: 2rem;
+}
+
+.error {
+	background-color: lightcoral;
+	border-radius: .2rem;
+	box-sizing: border-box;
+	color: #333;
+	margin: 1.5rem 0rem;
+	padding: .5rem;
+	width: 15rem;
+}

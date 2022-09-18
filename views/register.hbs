@@ -1,14 +1,35 @@
 <h1>register</h1>
 
 <form action="/register" method="post">
-	name: <input type="text" name="name" id="name"><br>
-	email: <input type="email" name="email" id="email" required><br>
-	password: <input type="password" name="password" id="password" required><br>
-	confirm password: <input type="password" name="confirm" id="confirm" required><br><br>
+	<div>
+		<label for="name">name:</label>
+		<input type="text" name="name" id="name" value="{{name}}">
+	</div>
 
-	<button type="submit">register</button>
+	<div>
+		<label for="email">email:</label>
+		<input type="email" name="email" id="email" value="{{email}}" required>
+	</div>
+	
+	<div>
+		<label for="password">password:</label>
+		<input type="password" name="password" id="password" required>
+	</div>
+	
+	<div>
+		<label for="confirm">confirm password:</label>
+		<input type="password" name="confirm" id="confirm" required>
+	</div>
+
+	<div>
+		<button type="submit">register</button>
+	</div>
 </form>
 
-<br><br>
+{{#if messages.error}}
+	<div class="error">{{messages.error}}</div>
+{{/if}}
 
-<a href="/">home</a>
+<div class="bottom-link">
+	<a href="/">home</a>
+</div>
